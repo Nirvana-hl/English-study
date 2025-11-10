@@ -2,6 +2,38 @@
 
 这是一个基于Vue 3和Supabase开发的英语学习助手，包含以下主要功能：
 
+## 部署说明
+
+### 在Netlify上部署时的环境变量配置
+
+要在Netlify上成功部署并使用Supabase功能（登录、注册等），需要正确设置以下环境变量：
+
+1. 在Netlify项目中，进入 **Site settings** > **Build & deploy** > **Environment** > **Environment variables**
+2. 添加以下环境变量：
+
+   | 环境变量名称 | 说明 | 必需 |
+   |------------|------|------|
+   | `VITE_SUPABASE_URL` | 您的Supabase项目URL | 是 |
+   | `VITE_SUPABASE_ANON_KEY` | 您的Supabase匿名访问密钥 | 是 |
+
+### 如何获取Supabase配置
+
+1. 登录您的Supabase账户
+2. 打开您的项目
+3. 进入 **Settings** > **API**
+4. 在 **Project URL** 部分复制URL
+5. 在 **Project API keys** 部分复制 `anon` 类型的密钥
+
+### 本地开发配置
+
+1. 复制 `.env.example` 文件为 `.env`
+2. 在 `.env` 文件中填入您的Supabase配置信息
+3. 运行 `npm install` 和 `npm run dev` 开始本地开发
+
+## 数据库设置
+
+首次使用时，请在Supabase控制台中执行 `create-auth-tables.sql` 文件中的SQL脚本，以创建必要的用户表结构。
+
 - 备考单词本管理
 - 备考作文存储
 - 好句记录功能

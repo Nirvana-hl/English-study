@@ -27,6 +27,11 @@ class AuthService {
   // 注册用户
   async register(email, password, username) {
     try {
+      // 检查supabase客户端是否初始化成功
+      if (!supabase) {
+        throw new Error('数据库连接失败，请检查服务配置后重试');
+      }
+      
       // 检查请求频率限制
       this.checkRateLimit();
       
@@ -88,6 +93,11 @@ class AuthService {
   // 用户登录
   async login(email, password) {
     try {
+      // 检查supabase客户端是否初始化成功
+      if (!supabase) {
+        throw new Error('数据库连接失败，请检查服务配置后重试');
+      }
+      
       // 检查请求频率限制
       this.checkRateLimit();
       

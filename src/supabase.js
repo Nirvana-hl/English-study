@@ -6,7 +6,13 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // 创建Supabase客户端
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('Supabase配置缺失，请检查环境变量');
+  const missing = [
+    !SUPABASE_URL ? 'VITE_SUPABASE_URL' : null,
+    !SUPABASE_ANON_KEY ? 'VITE_SUPABASE_ANON_KEY' : null,
+  ].filter(Boolean).join(', ');
+  const message = `Supabase配置缺失，请检查环境变量: ${missing}`;
+  console.error(message);
+  throw new Error(message);
 }
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import supabase from '../../config/supabase';
+import { supabase } from '../../supabase.js';
 import dayjs from 'dayjs';
 
 export default {

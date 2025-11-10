@@ -4,44 +4,51 @@
       <div class="logo">
         <span class="logo-text">英语学习助手</span>
       </div>
-      <ul class="nav-links">
-        <li class="nav-item">
-          <a
-            href="#words"
-            @click.prevent="changeView('words')"
-            :class="{ active: currentView === 'words' }"
-          >
-            单词本
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            href="#essays"
-            @click.prevent="changeView('essays')"
-            :class="{ active: currentView === 'essays' }"
-          >
-            备考作文
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            href="#sentences"
-            @click.prevent="changeView('sentences')"
-            :class="{ active: currentView === 'sentences' }"
-          >
-            好句收藏
-          </a>
-        </li>
-        <li class="nav-item">
-          <a
-            href="#calendar"
-            @click.prevent="changeView('calendar')"
-            :class="{ active: currentView === 'calendar' }"
-          >
-            考试日历
-          </a>
-        </li>
-      </ul>
+      <div class="nav-content">
+        <ul class="nav-links">
+          <li class="nav-item">
+            <a
+              href="#words"
+              @click.prevent="changeView('words')"
+              :class="{ active: currentView === 'words' }"
+            >
+              单词本
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="#essays"
+              @click.prevent="changeView('essays')"
+              :class="{ active: currentView === 'essays' }"
+            >
+              备考作文
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="#sentences"
+              @click.prevent="changeView('sentences')"
+              :class="{ active: currentView === 'sentences' }"
+            >
+              好句收藏
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              href="#calendar"
+              @click.prevent="changeView('calendar')"
+              :class="{ active: currentView === 'calendar' }"
+            >
+              考试日历
+            </a>
+          </li>
+        </ul>
+        <!-- 用户信息和登出按钮 -->
+        <div v-if="user" class="user-info">
+          <span class="user-email">{{ user.email }}</span>
+          <button @click="handleLogout" class="logout-button">登出</button>
+        </div>
+      </div>
     </div>
   </nav>
 </template>
@@ -53,11 +60,18 @@ export default {
     currentView: {
       type: String,
       default: 'words'
+    },
+    user: {
+      type: Object,
+      default: null
     }
   },
   methods: {
     changeView(view) {
       this.$emit('view-change', view);
+    },
+    handleLogout() {
+      this.$emit('logout');
     }
   }
 };
@@ -80,6 +94,38 @@ export default {
   justify-content: space-between;
   align-items: center;
   height: 60px;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.logout-button {
+  padding: 6px 16px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #dc2626;
 }
 
 .logo {

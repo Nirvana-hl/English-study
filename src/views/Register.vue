@@ -30,8 +30,8 @@
             id="password" 
             v-model="password" 
             required 
-            placeholder="请输入密码（至少8位）"
-            minlength="8"
+            placeholder="请输入密码（至少6位）"
+            minlength="6"
           >
         </div>
         <div class="form-group">
@@ -44,14 +44,17 @@
             placeholder="请再次输入密码"
           >
         </div>
-        <button type="submit" :disabled="loading">
-          {{ loading ? '注册中...' : '注册' }}
+        <button type="submit" :disabled="loading || countdown > 0">
+          {{ loading ? '注册中...' : (countdown > 0 ? `请等待 ${countdown} 秒` : '注册') }}
         </button>
         <p class="login-link">
           已有账号？<router-link to="/login">立即登录</router-link>
         </p>
       </form>
       <div v-if="error" class="error-message">{{ error }}</div>
+      <div v-if="countdown > 0" class="countdown-info">
+        系统正在保护您的账号安全，请稍后再试...
+      </div>
     </div>
   </div>
 </template>
@@ -68,19 +71,57 @@ export default {
       password: '',
       confirmPassword: '',
       loading: false,
-      error: ''
+      error: '',
+      countdown: 0,
+      countdownTimer: null
     };
   },
+  beforeUnmount() {
+    // 清除倒计时定时器
+    if (this.countdownTimer) {
+      clearInterval(this.countdownTimer);
+    }
+  },
+  computed: {
+    // 检查是否可以提交表单
+    canSubmit() {
+      return !this.loading && this.countdown === 0;
+    }
+  },
   methods: {
+    // 开始倒计时
+    startCountdown(seconds = 14) {
+      this.countdown = seconds;
+      this.loading = false;
+      
+      if (this.countdownTimer) {
+        clearInterval(this.countdownTimer);
+      }
+      
+      this.countdownTimer = setInterval(() => {
+        this.countdown--;
+        if (this.countdown <= 0) {
+          clearInterval(this.countdownTimer);
+          this.countdownTimer = null;
+        }
+      }, 1000);
+    },
+    
     async handleRegister() {
+      // 检查是否在倒计时中
+      if (this.countdown > 0) {
+        this.error = `请在 ${this.countdown} 秒后再试`;
+        return;
+      }
+
       // 表单验证
       if (this.password !== this.confirmPassword) {
         this.error = '两次输入的密码不一致';
         return;
       }
 
-      if (this.password.length < 8) {
-        this.error = '密码长度至少为8位';
+      if (this.password.length < 6) {
+        this.error = '密码长度至少为6位';
         return;
       }
 
@@ -89,13 +130,30 @@ export default {
       
       try {
         await authService.register(this.email, this.password, this.username);
-        // 注册成功后自动登录并跳转到功能界面
-        await authService.login(this.email, this.password);
+        // 注册成功后直接跳转到功能界面（Supabase注册成功后已创建会话）
         this.$router.push('/');
       } catch (error) {
-        this.error = error.message || '注册失败，请稍后重试';
+        // 处理常见注册错误
+        if (error.message.includes('秒后')) {
+          // 解析等待时间并显示倒计时
+          const waitTime = parseInt(error.message.match(/(\d+)秒/)?.[1] || '14');
+          this.error = error.message;
+          this.startCountdown(waitTime);
+        } else if (error.message.includes('邮箱已被注册')) {
+          this.error = error.message;
+        } else if (error.message.includes('密码不符合要求')) {
+          this.error = error.message;
+        } else if (error.message && error.message.includes('秒后再试')) {
+          this.error = error.message;
+          const waitTime = parseInt(error.message.match(/(\d+)秒/)?.[1] || '14');
+          this.startCountdown(waitTime);
+        } else {
+          this.error = error.message || '注册失败，请稍后重试';
+        }
       } finally {
-        this.loading = false;
+        if (!this.countdownTimer) {
+          this.loading = false;
+        }
       }
     }
   }
@@ -194,5 +252,15 @@ button:disabled {
   color: #c53030;
   border-radius: 4px;
   text-align: center;
+}
+
+.countdown-info {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #e6fffa;
+  color: #2c5aa0;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
 }
 </style>
